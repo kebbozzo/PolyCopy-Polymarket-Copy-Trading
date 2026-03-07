@@ -1,6 +1,7 @@
 # PolyCopy-Copy-Trading
 A bot for automatically copying trades on Polymarket
 
+
 ---
 
 ## 📋 Description
