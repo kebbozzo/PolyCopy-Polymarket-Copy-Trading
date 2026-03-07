@@ -1,60 +1,44 @@
 # PolyCopy-Copy-Trading
+A bot for automatically copying trades on Polymarket
 
-Un bot per copiare automaticamente operazioni su Polymarket
+📋 Description
+A Python bot that monitors specified wallets on Polymarket and automatically copies their trading activity. It detects changes in positions (open, close, increase, decrease) and executes the same trades using your own account.
 
-## 📋 Descrizione
+✨ Key Features
+📊 Simultaneous monitoring of multiple wallet addresses
 
-Un bot Python che monitora wallet specificati su Polymarket e copia automaticamente le loro attività di trading. Rileva variazioni nelle posizioni (apertura, chiusura, incremento, decremento) ed esegue le stesse operazioni utilizzando il tuo account.
+⚡ Real-time detection of position changes
 
-## ✨ Caratteristiche principali
+🔄 Automatic trade copying with customizable percentage
 
-- 📊 Monitoraggio simultaneo di più indirizzi wallet
-- ⚡ Rilevamento in tempo reale di cambiamenti nelle posizioni
-- 🔄 Copia automatica delle operazioni con percentuale personalizzabile
-- 🛡️ Limite di richieste configurabile per rispettare le API
-- 📝 Possibilità di disattivare il trading reale (modalità log)
+🛡️ Configurable rate limiting to respect API constraints
 
-## 🚀 Setup
+📝 Ability to disable live trading (log mode)
 
-### 1. Installa le dipendenze
-
-```bash
+🚀 Setup
+1. Install dependencies
+bash
 pip install -r requirements.txt
-```
-
-### 2. Crea un file `.env` con le tue credenziali
-
-```bash
+2. Create a .env file with your credentials
+bash
 POLYMARKET_PRIVATE_KEY=your_private_key
 POLYMARKET_PROXY_ADDRESS=your_proxy_address
-```
-
-### 3. Configura `config.json`
-
-```json
+3. Configure config.json
+json
 {
     "wallets_to_track": ["0x..."],
     "copy_percentage": 1.0,
     "rate_limit": 25,
     "trading_enabled": true
 }
-```
-
-## ⚙️ Parametri di configurazione
-
-| Parametro | Descrizione |
-|-----------|-------------|
-| `wallets_to_track` | Lista degli indirizzi wallet da seguire |
-| `copy_percentage` | Percentuale di copia rispetto alla dimensione originale (es. 1.0 = 100%, 0.2 = 20%, 2.0 = 200%) |
-| `rate_limit` | Numero massimo di richieste API consentite in una finestra di 10 secondi (default: 25) |
-| `trading_enabled` | Se `false`, il bot si limita a registrare le operazioni senza eseguirle |
-
-## ▶️ Esecuzione
-
-```bash
+⚙️ Configuration Parameters
+Parameter	Description
+wallets_to_track	List of wallet addresses to follow
+copy_percentage	Percentage to copy relative to original size (e.g., 1.0 = 100%, 0.2 = 20%, 2.0 = 200%)
+rate_limit	Maximum number of API requests allowed per 10-second window (default: 25)
+trading_enabled	If false, the bot only logs what it would do without executing trades
+▶️ Running
+bash
 python src/main.py
-```
-
-## 📌 Note importanti
-
-> ⚠️ Assicurati di avere i moduli `src.positions` e `src.trading` nella struttura del progetto.
+📌 Important Notes
+⚠️ Make sure you have the src.positions and src.trading modules in your project structure.
