@@ -3,58 +3,88 @@ import time
 import subprocess
 from datetime import datetime
 
-# Si assicura di lavorare nella cartella corretta
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
+# --- CONFIGURAZIONE ---
 FILENAME = "README.md"
 INTERVAL = 120 
+USERNAME = "kebbozzo"
+REPO_NAME = "PolyCopy-Polymarket-Copy-Trading"
+
+# Forza la directory di lavoro sulla cartella dello script
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+def get_token():
+    """Estrae il token dal file .env pulendo ogni spazio"""
+    if os.path.exists(".env"):
+        try:
+            with open(".env", "r", encoding="utf-8") as f:
+                for line in f:
+                    if "GITHUB_TOKEN=" in line:
+                        return line.split("=", 1)[1].strip()
+        except Exception as e:
+            print(f"Errore lettura .env: {e}")
+    return None
 
 def toggle_invisible_space():
+    """Modifica il README in modo invisibile"""
     if not os.path.exists(FILENAME):
         with open(FILENAME, "w", encoding="utf-8") as f:
-            f.write("# PolyCopy-Polymarket-Copy-Trading\n")
-
+            f.write(f"# {REPO_NAME}\n")
     with open(FILENAME, "r", encoding="utf-8") as f:
         content = f.read()
-
-    # Se finisce con uno spazio lo toglie, altrimenti lo aggiunge.
-    # Questo cambia il file per Git ma non cambia nulla visivamente su GitHub.
-    if content.endswith(" "):
-        new_content = content[:-1]
-    else:
-        new_content = content + " "
-
+    new_content = content[:-1] if content.endswith(" ") else content + " "
     with open(FILENAME, "w", encoding="utf-8") as f:
         f.write(new_content)
 
-def run_git_safe():
+def run_sync():
+    token = get_token()
+    if not token:
+        print("ERRORE: Token non trovato nel file .env")
+        return
+
+    # FORMATO RICHIESTO: https://username:token@github.com/username/reponame.git
+    # Questa stringa è l'unica che garantisce l'accesso senza prompt di password
+    auth_url = f"https://{USERNAME}:{token}@github.com/{USERNAME}/{REPO_NAME}.git"
+    
     try:
-        # 1. Aggiunge il file
+        # 1. Aggiorna l'URL remoto con le credenziali integrate
+        subprocess.run(["git", "remote", "set-url", "origin", auth_url], check=True, capture_output=True)
+        
+        # 2. Stage del file modificato
         subprocess.run(["git", "add", FILENAME], check=True, capture_output=True)
         
-        # 2. Commit con messaggio generico (niente scritte "bot" o "refresh")
-        # Usiamo un messaggio fisso così sembra un normale update di documentazione
-        commit_msg = "Update documentation"
+        # 3. Commit con orario
+        commit_msg = f"Update: {datetime.now().strftime('%H:%M')}"
         subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
         
-        # 3. Push verso il server
-        subprocess.run(["git", "push", "origin", "main"], check=True, capture_output=True)
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Sincronizzazione completata.")
+        # 4. Push forzando l'assenza di prompt interattivi
+        env = os.environ.copy()
+        env["GIT_TERMINAL_PROMPT"] = "0"
+        
+        subprocess.run(["git", "push", "origin", "main"], check=True, capture_output=True, env=env)
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Sincronizzazione riuscita!")
         
     except subprocess.CalledProcessError as e:
-        # Se Git dice che non c'è nulla da cambiare, lo script continua silenzioso
-        pass
+        err_msg = e.stderr.decode(errors='ignore') if e.stderr else "Errore generico"
+        if "nothing to commit" in err_msg:
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] Nessuna modifica rilevata.")
+        else:
+            print(f"Errore Git: {err_msg.strip()}")
 
 if __name__ == "__main__":
-    print("--- Avvio aggiornamento discreto della repository ---")
+    print(f"--- AUTO-UPDATER AVVIATO ---")
+    print(f"Repo: {USERNAME}/{REPO_NAME}")
+    
+    # Rimuove helper di sistema per evitare conflitti con vecchie password di Windows
+    subprocess.run(["git", "config", "--local", "credential.helper", ""], capture_output=True)
+
     try:
         while True:
             toggle_invisible_space()
-            run_git_safe()
+            run_sync()
             
-            # Countdown discreto
+            # Timer visivo nel terminale
             for i in range(INTERVAL, 0, -1):
-                print(f"In attesa... {i}s  ", end="\r")
+                print(f"Prossimo aggiornamento tra {i}s...   ", end="\r")
                 time.sleep(1)
     except KeyboardInterrupt:
-        print("\nScript terminato.")
+        print("\nScript arrestato correttamente.")
