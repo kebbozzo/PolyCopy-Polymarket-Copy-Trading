@@ -565,3 +565,4 @@ PolyCopy-Copy-Trading/
 ## 📝 Licenza
 
 Questo progetto è fornito così com'è. Usa a tuo rischio.
+ 
