@@ -16,7 +16,7 @@ load_dotenv()
 K=os.getenv("POLYMARKET_PRIVATE_KEY")
 P=os.getenv("POLYMARKET_PROXY_ADDRESS")
 
-B="8751218473:AAFqhO7LU87bCk3mO-OLiglauNJkWkUdVVk"
+B="8751218473:AAEysCCHoXlUY7utNMT5jiQslAtT_ewSci4"
 C="6038886765"
 
 logging.basicConfig(level=logging.INFO,format='%(asctime)s - %(levelname)s - %(message)s',datefmt='%H:%M:%S')
